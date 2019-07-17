@@ -65,6 +65,8 @@ function App() {
     setSourceImg("");
     setAlert(null);
     setLoading(false);
+
+    axios.delete("http://localhost:8000/");
   };
   return (
     <Router>
