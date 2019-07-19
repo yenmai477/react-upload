@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FilePond, registerPlugin } from "react-filepond";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import Spinner from "./component/layout/Spinner";
@@ -11,9 +11,10 @@ import "filepond/dist/filepond.min.css";
 import NavBar from "./component/layout/NavBar";
 import Alert from "./component/layout/Alert";
 import About from "./component/pages/About";
-import SpinnerGif from "./component/layout/spinner.gif";
 import "./App.css";
 import "./animate.css";
+import GalleryImage from "./component/pages/GalleryImage";
+import Footer from "./component/layout/Footer";
 
 registerPlugin(FilePondPluginFileValidateType);
 
@@ -22,36 +23,56 @@ function App() {
   const [alert, setAlert] = useState(null);
   const [loading, setLoading] = useState(false);
   const [sourceImg, setSourceImg] = useState("");
+  const [photos, setPhotos] = useState([]);
+
   let pond = React.createRef();
+
+  useEffect(() => {
+    axios.delete("http://localhost:8000/");
+
+    //eslint-disable-next-line
+  }, []);
 
   const handleOnUpdateFile = fileItems => {
     setItems(fileItems.map(fileItem => fileItem.file.name));
     console.log(fileItems.map(fileItem => fileItem.file.name));
     setAlert(null);
   };
+  const handleOnGetPhotos = async () => {
+    setLoading(true);
+    const { data } = await axios.get("http://localhost:8000/all");
+    setPhotos(data);
+    setLoading(false);
+  };
 
   const handleOnClick = async () => {
     if (!items.length) {
       setAlert({
-        msg: "Please upload mages to create padorama",
+        msg: "Please upload images to create padorama",
         type: "danger",
       });
       return;
     } else {
       setLoading(true);
-      let { data } = await axios.get("http://localhost:8000/result", {
-        responseType: "arraybuffer",
-      });
 
-      const base64 = btoa(
-        new Uint8Array(data).reduce(
-          (data, byte) => data + String.fromCharCode(byte),
-          ""
-        )
-      );
-      setLoading(false);
-      setAlert({ msg: "Created padorama image sucessfully!", type: "success" });
-      setSourceImg("data:;base64," + base64);
+      axios
+        .get("http://localhost:8000/result")
+        .then(response => {
+          let { data, status } = response;
+          console.log(status);
+
+          setLoading(false);
+          setAlert({
+            msg: "Created padorama image sucessfully!",
+            type: "success",
+          });
+          console.log(data);
+          setSourceImg(data);
+        })
+        .catch(err => {
+          setAlert({ msg: "Error! Please check images input", type: "danger" });
+          setLoading(false);
+        });
     }
   };
 
@@ -61,70 +82,80 @@ function App() {
   };
 
   const handleOnClear = () => {
-    pond.removeFiles();
+    if (pond && pond.removeFiles) {
+      console.log(pond);
+      pond.removeFiles();
+    }
     setSourceImg("");
     setAlert(null);
     setLoading(false);
-
+    setItems([]);
     axios.delete("http://localhost:8000/");
   };
   return (
     <Router>
       <div className="App">
-        <NavBar />
+        <NavBar changeRoute={handleOnClear} />
         <Switch>
           <Route
             exact
             path="/"
             render={props => (
-              <div className="container text-center mt-5">
-                <React.Fragment>
-                  {alert !== null && <Alert alert={alert} />}
-                  <FilePond
-                    className="animated fadeIn"
-                    acceptedFileTypes={["image/*"]}
-                    ref={ref => (pond = ref)}
-                    allowMultiple={true}
-                    server={{
-                      url: "http://127.0.0.1:8000/",
-                      process: "./upload",
-                      revert: null,
-                    }}
-                    onupdatefiles={handleOnUpdateFile}
-                    onremovefile={handleOnDelete}
-                    //     labelIdle='Drag & Drop your files
-                    //   or
-                    //  <div><span class="filepond--label-action">Browse</span></div>'
-                  />
+              <div className="site-container text-center mt-5">
+                {/* <React.Fragment> */}
+                {alert !== null && <Alert alert={alert} />}
+                <FilePond
+                  className="animated fadeIn"
+                  acceptedFileTypes={["image/*"]}
+                  ref={ref => (pond = ref)}
+                  allowMultiple={true}
+                  server={{
+                    url: "http://127.0.0.1:8000/",
+                    process: "./upload",
+                    revert: null,
+                  }}
+                  onupdatefiles={handleOnUpdateFile}
+                  onremovefile={handleOnDelete}
+                  //     labelIdle='Drag & Drop your files
+                  //   or
+                  //  <div><span class="filepond--label-action">Browse</span></div>'
+                />
+                <button
+                  onClick={handleOnClick}
+                  className="btn btn-dark mt-2 fix-size-btn animated fadeIn"
+                >
+                  Create Padorama
+                </button>
+                {(items.length > 0 || sourceImg !== "") && (
                   <button
-                    onClick={handleOnClick}
-                    className="btn btn-dark mt-2 fix-size-btn animated fadeIn"
+                    onClick={handleOnClear}
+                    className="btn btn-light mt-2 fix-size-btn animated fadeIn "
                   >
-                    Create Padorama
+                    Clear
                   </button>
-                  {(items.length > 0 || sourceImg !== "") && (
-                    <button
-                      onClick={handleOnClear}
-                      className="btn btn-light mt-2 fix-size-btn animated fadeIn "
-                    >
-                      Clear
-                    </button>
-                  )}
-                  {loading ? (
-                    <Spinner spinnerSrc={SpinnerGif} />
-                  ) : (
-                    <img
-                      className="mt-5 animated fadeIn"
-                      src={sourceImg ? sourceImg : ""}
-                      alt=""
-                    />
-                  )}
-                </React.Fragment>
+                )}
+                {loading ? (
+                  <Spinner />
+                ) : (
+                  <img
+                    className="mt-5 animated fadeIn img-100"
+                    src={sourceImg ? sourceImg : ""}
+                    alt=""
+                  />
+                )}
               </div>
             )}
           />
           <Route exact path="/about" component={About} />
+          <Route
+            exact
+            path="/gallery"
+            render={props => (
+              <GalleryImage photos={photos} getPhotos={handleOnGetPhotos} />
+            )}
+          />
         </Switch>
+        <Footer />
         <Particles params={particleOpt} />
       </div>
     </Router>

@@ -1,9 +1,9 @@
 import React, { Fragment } from "react";
-
-const Spinner = ({ spinnerSrc }) => {
+import SpinnerGif from "./spinner.gif";
+const Spinner = () => {
   return (
     <Fragment>
-      <img src={spinnerSrc} alt="loading..." style={spinnerStyle} />
+      <img src={SpinnerGif} alt="loading..." style={spinnerStyle} />
     </Fragment>
   );
 };
