@@ -25,6 +25,7 @@ body {
   background-image: url("./images/silvia-agrasar-IdVNRv-5wJo-unsplash.jpg");
   background-repeat: no-repeat;
   background-size: cover;
+  background-attachment: fixed;
   width: 100%;
   height: 100%;
 }
