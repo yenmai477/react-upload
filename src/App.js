@@ -48,7 +48,7 @@ function App() {
   const handleOnClick = async () => {
     if (!items.length) {
       setAlert({
-        msg: "Please upload images to create padorama",
+        msg: "Please upload images to create panorama",
         type: "danger",
       });
       return;
@@ -63,7 +63,7 @@ function App() {
 
           setLoading(false);
           setAlert({
-            msg: "Created padorama image sucessfully!",
+            msg: "Created panorama image sucessfully!",
             type: "success",
           });
           console.log(data);
@@ -124,7 +124,7 @@ function App() {
                   onClick={handleOnClick}
                   className="btn btn-dark mt-2 fix-size-btn animated fadeIn"
                 >
-                  Create Padorama
+                  Create panorama
                 </button>
                 {(items.length > 0 || sourceImg !== "") && (
                   <button

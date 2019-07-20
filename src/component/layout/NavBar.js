@@ -27,7 +27,7 @@ const NavBar = ({ title, icon, changeRoute }) => {
 };
 
 NavBar.defaultProps = {
-  title: "NgPadorama",
+  title: "NgPanorama",
   icon: "fas fa-camera-retro mr-1",
 };
 NavBar.propTypes = {

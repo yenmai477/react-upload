@@ -29,8 +29,8 @@ const GalleryImage = ({ loading, getPhotos, photos }) => {
   return (
     <div className="site-container animated fadeIn delay-1s">
       <div className="text-center mb-5">
-        <h1 className="header-content animated fadeIn">NgPadorama Gallery</h1>
-        <p>Beautiful padorama images created by us</p>
+        <h1 className="header-content animated fadeIn">NgPanorama Gallery</h1>
+        <p>Beautiful panorama images created by us</p>
       </div>
       {!photos.length && (
         <p className="text-center mt-5 animated fadeIn">No images to display</p>
